@@ -148,9 +148,41 @@ def magnitude(tree):
     return 3 * magnitude(tree.left) + 2 * magnitude(tree.right)
 
 
+d="[[1,[1,2]],[3,4]]"
+
+def parse(string):
+
+    def parse(i):
+        res = []
+        comma = True
+        while i < len(string):
+            if string[i] == '[':
+                pos, res2 = parse(i+1)
+                res.append(res2)
+                i += (pos-i)
+            elif string[i].isdigit():
+                j = i
+                while i < len(string) and string[i].isdigit(): i += 1
+                res.append(int(string[j:i]))
+            elif string[i] == ']':
+                if comma: return (i+1, res)
+            elif string[i] == ',':
+                comma = True
+                i += 1
+            else:
+                i += 1
+        return (i+1, res)
+    return parse(0)[1][0]
+
+
+
+# [[1,[2,3]],[3,0]]
+
+
+
 def part2(lines):
     result = 0
-    nums = [eval(num) for num in lines]
+    nums = [parse(num) for num in lines]
     for i in range(len(nums)):
         for j in range(len(nums)):
             if i != j:
@@ -161,14 +193,19 @@ def part2(lines):
                 result = max(result, magnitude(tree))
     print(result)
 
-
+# [[2,3], 5]
 def part1(lines):
-    nums = [eval(num) for num in lines]
+    nums = [parse(num) for num in lines]
     final_tree = reduce(lambda x, y: add_num_to_tree(x, y), nums[1:], to_tree(nums[0]))
     print(magnitude(final_tree))
 
 
-if __name__ == '__main__':
+def main():
     lines = fs.readall("./data/day18-input.txt").split("\n")
     part1(lines)
     part2(lines)
+
+if __name__ == '__main__':
+    # print(parse("[[[9,[3,8]],[[0,9],6]],[[[3,7],[4,9]],3]]"))
+    # print(eval("[[[9,[3,8]],[[0,9],6]],[[[3,7],[4,9]],3]]"))
+    main()
