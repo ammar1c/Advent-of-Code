@@ -1,3 +1,4 @@
+import copy
 import math
 
 from util import fs
@@ -116,13 +117,16 @@ def add(tree1, tree2):
 
 
 def to_tree(num):
+
     def dfs(num):
         left, right = num[0], num[1]
         tnode = TreeNode()
+
         if type(left) == int:
             tnode.left = TreeNode(left)
         else:
             tnode.left = to_tree(left)
+
         if type(right) == int:
             tnode.right = TreeNode(right)
         else:
@@ -154,25 +158,33 @@ def parse(string):
 
     def parse(i):
         res = []
-        comma = True
+        st = []
         while i < len(string):
             if string[i] == '[':
-                pos, res2 = parse(i+1)
-                res.append(res2)
-                i += (pos-i)
+                st.append(copy.deepcopy(res))
+                res = []
+                i += 1
             elif string[i].isdigit():
                 j = i
                 while i < len(string) and string[i].isdigit(): i += 1
                 res.append(int(string[j:i]))
             elif string[i] == ']':
-                if comma: return (i+1, res)
+                if res:
+                    st.append(copy.deepcopy(res))
+                    res = []
+                else:
+                    b = st.pop()
+                    res = st.pop()
+                    res.append(b)
+
+
+
             elif string[i] == ',':
-                comma = True
                 i += 1
             else:
                 i += 1
-        return (i+1, res)
-    return parse(0)[1][0]
+        return res
+    return parse(0)
 
 
 
@@ -206,6 +218,6 @@ def main():
     part2(lines)
 
 if __name__ == '__main__':
-    # print(parse("[[[9,[3,8]],[[0,9],6]],[[[3,7],[4,9]],3]]"))
-    # print(eval("[[[9,[3,8]],[[0,9],6]],[[[3,7],[4,9]],3]]"))
-    main()
+    print(parse("[[[9,[3,8]],[[0,9],6]],[[[3,7],[4,9]],3]]"))
+    print(eval("[[[9,[3,8]],[[0,9],6]],[[[3,7],[4,9]],3]]"))
+    # main()
