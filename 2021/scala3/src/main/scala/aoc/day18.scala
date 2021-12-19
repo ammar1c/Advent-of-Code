@@ -91,7 +91,6 @@ object day18 {
               val comp = last ++ nlast
               return dfs(comp, 1)
             }
-
           }
         }
       }
