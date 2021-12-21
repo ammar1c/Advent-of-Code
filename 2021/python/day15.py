@@ -5,6 +5,8 @@ import math
 from heapq import heappush, heappop
 
 
+
+
 def solve2d(grid, p):
 
     m, n = len(grid) * p, len(grid[0]) * p
@@ -16,15 +18,11 @@ def solve2d(grid, p):
         x, y = i % m, j % n
         v = grid[x][y]
         while x != i:
-            v += 1
-            if v == 10:
-                v = 1
-            x += m
+            v , x = v+1, x + m
+            if v == 10: v = 1
         while y != j:
-            v += 1
-            if v == 10:
-                v = 1
-            y += n
+            v, y = v+1, y + n
+            if v == 10: v = 1
         new_grid[i][j] = v
         return v
 
@@ -34,14 +32,15 @@ def solve2d(grid, p):
     dist[0][0] = 0
     while pq:
         (distxy, (x, y)) = heappop(pq)
-        if (x, y) not in s:
-            s.add((x, y))
-            for i, j in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
-                nx = x + i
-                ny = y + j
-                dist[nx][ny] = min(distxy + get_val(grid, nx, ny), dist[nx][ny])
-                if 0 <= nx < m and 0 <= ny < n:
-                    heappush(pq, (dist[nx][ny], (nx, ny)))
+        if (x,y) in s: continue
+        s.add((x, y))
+        for i, j in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+            nx = x + i
+            ny = y + j
+            if (nx, ny) in s or nx < 0 or nx >= m or ny < 0 or ny >= n: continue
+            dist[nx][ny] = min(distxy + get_val(grid, nx, ny), dist[nx][ny])
+            if 0 <= nx < m and 0 <= ny < n:
+                heappush(pq, (dist[nx][ny], (nx, ny)))
 
     return dist[m - 1][n - 1]
 
@@ -60,8 +59,8 @@ def print_grid(grid):
 
 
 if __name__ == '__main__':
-    with open("./data/day15-sample.txt") as f:
+    with open("./data/day15-input.txt") as f:
         all = f.read()
         lines = all.split()
         grid = [[int(x) for x in line] for line in lines]
-        print(solve2d(grid, 1))
+        print(solve2d(grid, 5))
