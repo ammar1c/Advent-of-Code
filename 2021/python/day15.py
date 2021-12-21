@@ -1,60 +1,37 @@
-from functools import lru_cache
 
-import sys
-import math
 from heapq import heappush, heappop
 
 
-
-
 def solve2d(grid, p):
-
+    gm, gn = len(grid), len(grid[0])
     m, n = len(grid) * p, len(grid[0]) * p
     new_grid = [[0 for _ in range(n)] for _ in range(m)]
 
-    def get_val(grid, i, j):
-        if new_grid[i][j] != 0: return new_grid[i][j]
-        m, n = len(grid), len(grid[0])
-        x, y = i % m, j % n
-        v = grid[x][y]
-        while x != i:
-            v , x = v+1, x + m
-            if v == 10: v = 1
-        while y != j:
-            v, y = v+1, y + n
-            if v == 10: v = 1
-        new_grid[i][j] = v
-        return v
+    for i in range(m):
+        for j in range(n):
+            dx, dy = i // gm, j // gn
+            v = grid[i % gm][j % gn]
+            v = (v + dx - 1) % 9 + 1
+            v = (v + dy - 1) % 9 + 1
+            new_grid[i][j] = v
 
     pq = [(0, (0, 0))]
     s = set()
-    dist = [[math.inf for _ in range(n)] for _ in range(m)]
+    dist = [[999999999 for _ in range(n)] for _ in range(m)]
     dist[0][0] = 0
     while pq:
         (distxy, (x, y)) = heappop(pq)
-        if (x,y) in s: continue
+        if (x, y) in s: continue
         s.add((x, y))
         for i, j in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
             nx = x + i
             ny = y + j
             if (nx, ny) in s or nx < 0 or nx >= m or ny < 0 or ny >= n: continue
-            dist[nx][ny] = min(distxy + get_val(grid, nx, ny), dist[nx][ny])
+            dist[nx][ny] = min(distxy + new_grid[nx][ny], dist[nx][ny])
             if 0 <= nx < m and 0 <= ny < n:
-                heappush(pq, (dist[nx][ny], (nx, ny)))
+                heappush(pq, (dist[nx][ny], (nx, ny))) # there's no decrease key, so we have to add unvisited vertex multiple times
 
     return dist[m - 1][n - 1]
-
-
-
-
-
-def print_grid(grid):
-    m, n = len(grid), len(grid[0])
-    for i in range(m):
-        for j in range(n):
-            print(grid[i][j], end="")
-        print()
-
 
 
 
