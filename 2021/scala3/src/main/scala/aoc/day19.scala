@@ -1,6 +1,6 @@
 package aoc
 
-object day18 {
+object day19 {
 
   final case class Point(x: Int, y: Int, z: Int):
     override def toString: String = s"($x, $y, $z)"
@@ -71,7 +71,7 @@ object day18 {
 
 
   def main(args: Array[String]): Unit =
-    val scanners = read("./data/day18-sample.txt")
+    val scanners = read("./data/day19-sample.txt")
 
 
     var distance = 0
