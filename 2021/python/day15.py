@@ -38,7 +38,7 @@ def solve2d(grid, p):
             v = (v + dx - 1) % 9 + 1
             v = (v + dy - 1) % 9 + 1
             new_grid[i][j] = v
-
+    print(new_grid)
     pq = [(0, (0, 0))]
     s = set()
     dist = [[999999999 for _ in range(n)] for _ in range(m)]
@@ -53,13 +53,13 @@ def solve2d(grid, p):
             if (nx, ny) in s or nx < 0 or nx >= m or ny < 0 or ny >= n: continue
             dist[nx][ny] = min(distxy + new_grid[nx][ny], dist[nx][ny])
             heappush(pq, (dist[nx][ny], (nx, ny))) # there's no decrease key, so we have to add unvisited vertex multiple times
-
+    print(dist)
     return dist[m - 1][n - 1]
 
 
 
 if __name__ == '__main__':
-    with open("./data/day15-input.txt") as f:
+    with open("./data/day15-sample.txt") as f:
         all = f.read()
         lines = all.split()
         grid = [[int(x) for x in line] for line in lines]
