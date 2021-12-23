@@ -43,23 +43,25 @@ object day23 {
 
   def playDijkstra(game: Game): Long = {
     var result = Long.MaxValue
-    def doIt(game: Game, score: Long): Unit = {
-      if (game.allOk) then {
-        result = math.min(result, score)
-//        println(result)
-      }
-      else if (score >= result) return
-      else {
-        val moves = game.moveToHall ++ game.moveFromHall
-        val sortedMoves = moves.sortBy(_._1)
-        for((e, z) <- sortedMoves) {
-          doIt(z, score + e)
+    implicit val ordering: Ordering[(Long, Game)] = Ordering.by(-_._1)
+    val pq = scala.collection.mutable.PriorityQueue[(Long, Game)]()
+    pq.enqueue((0, game))
+    val visited = scala.collection.mutable.Set.empty[Game]
+    while !pq.isEmpty do
+      val (e, z) = pq.dequeue()
+      if (!visited(z)) {
+        visited.add(z)
+        if (z.allOk) then {
+          return e
+        }
+        else {
+          val moves = z.moveToHall ++ z.moveFromHall
+          for((e1, z1) <- moves) {
+            pq.enqueue((e + e1, z1))
+          }
         }
       }
-    }
-
-    doIt(game, 0)
-    result
+    0
   }
 
   case class Game(hall: Seq[SpaceType],
