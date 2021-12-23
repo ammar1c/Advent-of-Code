@@ -1,7 +1,10 @@
 package aoc2021
 
 
+import scala.collection.{mutable => mu}
+
 object day23 {
+
   enum SpaceType(val s: Char, val energy: Int):
     case Empty extends SpaceType('.', 0)
     case A extends SpaceType('A', 1)
@@ -18,27 +21,23 @@ object day23 {
       case 'C' => C
       case 'D' => D
 
-  val trace = true
   def playDijkstra(game: Game): Long = {
-    var result = Long.MaxValue
 
     implicit val ordering: Ordering[(Long, Game)] = Ordering.by(-_._1)
     val pq = scala.collection.mutable.PriorityQueue[(Long, Game)]()
-    pq.enqueue((0, game))
 
-    val visited = scala.collection.mutable.Set.empty[Game]
-    val trace = scala.collection.mutable.Map.empty[Game, Game]
-    val energy = scala.collection.mutable.Map.empty[Game, Long]
+    val visited = mu.Set.empty[Game]
+    val trace = mu.Map.empty[Game, Game]
+    val energy = mu.Map.empty[Game, Long]
     trace += game -> game
+
+    pq.enqueue((0, game))
 
     while !pq.isEmpty do
       val (e, z) = pq.dequeue()
       energy += z -> e
-//      println(s"${pq.size}")
       if (z.allOk) then {
-//        println("Found result")
         var y = z
-//        println(trace)
         var i = 0
         var l = scala.collection.mutable.Stack.empty[Game]
         while(trace(y) != y && i < 60) do
@@ -51,8 +50,6 @@ object day23 {
           val g = l.pop()
           println(energy(g))
           println(g)
-
-
 
         return e
       }
@@ -76,19 +73,10 @@ object day23 {
                   rooms: Map[SpaceType, Seq[SpaceType]],
                   roomIdx : Map[SpaceType, Int],
                   idxToRoom: Map[Int, SpaceType]) {
-    def toString1: String = s"Game(hall=$hall, rooms = $rooms, roomIdx = $roomIdx, idxToRoom = $idxToRoom)"
 
-    def allOk: Boolean = {
-      return hall.forall(_ == SpaceType.Empty) &&
-        rooms.forall(x => x._2.forall(_ == x._1))
-    }
-
-    def immediatelyOutsideAnyRoom: Boolean = {
-      return hall.zipWithIndex.forall(a => a._1 == SpaceType.Empty)
-    }
+    def allOk: Boolean = hall.forall(_ == SpaceType.Empty) && rooms.forall(x => x._2.forall(_ == x._1))
 
     def moveFromHall: List[(Int, Game)] = {
-      // grab an amphiod from the hall and move it into its room
       var result = List.empty[(Int, Game)]
       for((spaceType, pos) <- this.hall.zipWithIndex) {
         if (spaceType != SpaceType.Empty) {
@@ -99,7 +87,6 @@ object day23 {
               if (rooms(spaceType)(i) == SpaceType.Empty && canUpdate) dstRoom += 1
               else canUpdate = false
             }
-//            println(s"${dstRoom}")
             if (dstRoom >= 0
               && rooms(spaceType).drop(dstRoom+1).forall(_ == spaceType)){
 
@@ -111,11 +98,6 @@ object day23 {
                 newPos += dir
                 moves += 1
               }
-
-              if (!rooms(spaceType).drop(dstRoom+1).forall(_ == spaceType)) {
-                println(s"Trying to move into ${rooms(spaceType)} value ${spaceType}")
-              }
-
 
               if (newPos == idx) {
                 result :+= ((moves + dstRoom + 1) * spaceType.energy, this.copy(
@@ -129,6 +111,7 @@ object day23 {
       }
       return result
     }
+
     import scala.util.control._
 
     def moveToHall: List[(Int, Game)] = {
@@ -146,9 +129,8 @@ object day23 {
             if (i > 0 && (i until roomSize).forall(j => values(j) == roomType) && values(i) == roomType) loop.break
             if (i == 0 && (i until roomSize).forall(j => values(j) == roomType)) loop.break
 
-//            println(i)
             if (values(i) == SpaceType.Empty) {
-              // continue
+                // continue
             } else {
 
               var newValues = values
@@ -237,7 +219,6 @@ object day23 {
 
   def parse(linesIn: Seq[String]): Game = {
     var lines = linesIn.drop(1)
-//    var indices = List.empty[Int]
     var hall = List.empty[SpaceType]
     var rooms = Map.empty[SpaceType, Array[SpaceType]]
     var idxToRoom = Map.empty[Int, SpaceType]
@@ -247,7 +228,6 @@ object day23 {
 
     }
     val indices = lines(1).zipWithIndex.filter(_._1 != '#').map(_._2-1)
-//    println("indices " + indices)
     val roomsSeq = Array(SpaceType.A, SpaceType.B, SpaceType.C, SpaceType.D)
     for((pos,roomType)  <- indices.zip(roomsSeq)) {
       var room = Array.fill(roomSize)(SpaceType.Empty)
@@ -258,32 +238,7 @@ object day23 {
     }
     Game(hall.toSeq, rooms.mapValues(_.toSeq).toMap, roomToIdx, idxToRoom)
   }
-  import scala.util.control._
 
-  def move(game: Game, z: Int): Unit = {
-    val moves = game.moveFromHall ++ game.moveToHall
-    if (z >= 4) return
-    if (moves.isEmpty) {
-      println("No moves")
-    } else {
-      var i = 3
-      val loop = new Breaks
-      loop.breakable {
-        for((e, g) <- moves) {
-          println(s"$i $e")
-          println("Moving from this")
-          println(game)
-          println("To this")
-          println(g)
-          move(g, z + 1)
-          i -= 1
-          if (i == 0) loop.break
-
-        }
-      }
-
-    }
-  }
   def part1() = {
     roomSize = 2
     val game = read("data/day23-input.txt")
@@ -312,28 +267,11 @@ object day23 {
         println("-------")
         println("Finish")
 
-
   }
-  def main(args: Array[String]): Unit = {
-      part2()
-//    runTests()
-//    move(game, 0 )
-//    println(play(game))
-//    val moves = game.moveToHall
-//    println("Initially was")
-//    println("Game")
-//
-//    for ((e, g) <- moves) {
-//      println(s"$g")
-//      for((e1, g1) <- g.moveFromHall) {
-//        println("Moving from this:")
-//        println(g)
-//        println("To this:")
-//        println(g1)
-//      }
-//
-//    }
 
+
+  def main(args: Array[String]): Unit = {
+      part1()
   }
 
 }
