@@ -1,4 +1,4 @@
-package aoc
+package aoc2021
 
 object day16 {
   import Integer.{parseInt, toBinaryString}
