@@ -229,13 +229,13 @@ object day23 {
     Game(hall.toSeq, rooms.mapValues(_.toSeq).toMap, roomToIdx, idxToRoom)
 
 
-  def part1() =
+  def part1 =
     roomSize = 2
     val game = read("data/day23-input.txt")
     println(playDijkstra(game))
 
 
-  def part2() =
+  def part2 =
     roomSize = 4
     val game = read("data/day23-input-p2.txt")
     println(playDijkstra(game))
