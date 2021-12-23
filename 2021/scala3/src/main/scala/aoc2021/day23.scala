@@ -109,7 +109,7 @@ object day23 {
       var picked = SpaceType.Empty
       var result = List.empty[(Int, Game)]
 
-      for((roomType, values) <- rooms) {
+      for((roomType, values) <- rooms)
 
         var i = 0
         var loop = new Breaks
@@ -170,8 +170,6 @@ object day23 {
           }
         }
 
-
-      }
       result
     }
 
