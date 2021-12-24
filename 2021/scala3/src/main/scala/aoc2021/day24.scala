@@ -6,8 +6,10 @@ import scala.util.Random
 import scala.collection.mutable.{Map => MMap}
 
 object day24 {
+
   import Token._
   import Command._
+
   enum Token:
     case Literal(val v: Long)
     case Variable(val v: Char)
