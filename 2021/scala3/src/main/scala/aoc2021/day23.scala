@@ -52,7 +52,7 @@ object day23 {
       val (e, z) = pq.dequeue()
       energy += z -> e
       if z.allOk then
-        reportTrace(z)
+//        reportTrace(z)
         return e
 
       if !visited(z) then
