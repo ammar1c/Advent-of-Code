@@ -12,22 +12,34 @@ object day20 {
       for x <- 0 to m do
         for y <- 0 to n do print(if (get(x, y) == 1) '#' else '.')
         println()
+
+    var code = Seq.empty[Int]
     def neighbors(b: Map[Int, Map[Int, Int]], x: Int, y: Int): Int =
       val z = for dx <- -1 to 1
                   dy <- -1 to 1 yield getZ(b, x + dx, y + dy)
-      print(x, y, z, "\n")
+      val s = z.mkString("")
+      val int = Integer.parseInt(s, 2)
+      val code1 = code(int)
+      println(x + " "  + y + " " + z  + " " + s + " " +int + " " + code1)
       Integer.parseInt(z.mkString, 2)
 
     def enhance(code: Seq[Int]): Board =  {
+      this.code = code
       val newBoardX = Map.empty[Int, Map[Int, Int]]
+
       val newBoard = Map.empty[Int, Map[Int, Int]]
 
       for x <- 0 to m; y <- 0 to n do
         if !(newBoard contains x) then newBoard(x) = Map.empty[Int, Int]
         newBoard(x)(y) = code(neighbors(b,x,y))
-
+      println("New board")
+      Board(newBoard, default).printBoard()
       for x <- 0 to m+2 do newBoardX(x) = Map.empty[Int, Int]
-      for x <- 0 to m; y <- 0 to n do newBoardX(x+1)(y+1) = newBoard(x)(y)
+      for x <- 0 to m; y <- 0 to n do newBoardX(x)(y) = newBoard(x)(y)
+
+//      println("New Board x")
+//      Board(newBoardX, default).printBoard()
+
       for y <- 0 to n+2 do newBoardX(0)(y) = code(neighbors(b, -1,y))
       for y <- 0 to n+2 do newBoardX(m+2)(y) = code(neighbors(b, m+1,y))
       for x <- 0 to m+2 do newBoardX(x)(0) = code(neighbors(b, x,-1))
