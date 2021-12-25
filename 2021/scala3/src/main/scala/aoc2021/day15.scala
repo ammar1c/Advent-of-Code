@@ -13,6 +13,7 @@ object day15 {
       v = (v + j / on - 1) % 9 + 1
       v
     }
+    
     type Node = (Int, (Int, Int))
     implicit val ordering: Ordering[Node] = (x: Node, y: Node) => x._1.compare(y._1)
     val pq = scala.collection.mutable.PriorityQueue.empty[Node](ordering.reverse)

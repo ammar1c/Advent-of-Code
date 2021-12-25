@@ -55,7 +55,6 @@ object day20 {
 
   def main(args: Array[String]): Unit = {
     val (code, board) = parse("./data/day20-sample.txt")
-//    println(p._1)
 
     board.printBoard()
     val newBoard = board.enhance(code)
