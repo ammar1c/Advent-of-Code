@@ -4,15 +4,12 @@ object day19 {
 
   final case class Point(x: Int, y: Int, z: Int):
     override def toString: String = s"($x, $y, $z)"
-
     def -(that: Point): Point = Point(this.x - that.x, this.y - that.y, this.z - that.z)
-
     def +(that: Point): Point = Point(this.x + that.x, this.y + that.y, this.z + that.z)
 
 
   final case class Scanner(beacons: Set[Point], pos: Option[Point]):
     def ++(that: Scanner): Scanner = Scanner((this.beacons ++ that.beacons), this.pos)
-
     def adjustToNewOrigin(norigin: Point): Scanner = this.copy(pos = Some(norigin), beacons = beacons.map(p => norigin + p))
 
     private def ordering: (Int, Point) => Point = (i, p) => List(
@@ -24,28 +21,30 @@ object day19 {
       Point(p.z, p.y, p.x)
     )(i)
 
-    def allCombinations: Seq[Scanner] =
-      val ors = Seq(-1, 1)
-
-      for x1 <- ors; y1 <- ors; z1 <- ors; i <- 0 to 5
-        yield
-          this.copy(beacons = this.beacons.map(p => {
-            val np = ordering(i, p)
-            np.copy(x = np.x * x1, y = np.y * y1, z = np.z * z1)
-          }))
-
-
-  def detectOverlapping(scn0: Scanner, scn1: Scanner, threshold: Int): Option[Point] =
+    def rotations: Seq[Scanner] =
+      val facings = Seq(-1, 1)
+      /** generate all the 48 diferent combinations */
+      for x1 <- facings
+          y1 <- facings
+          z1 <- facings
+          i <- 0 to 5 yield
+            copy(beacons = beacons.map(p => {
+              val np = ordering(i, p)
+              np.copy(x = np.x * x1, y = np.y * y1, z = np.z * z1)
+            }))
+  
+  def detectOverlapping(sc0: Scanner, sc1: Scanner, threshold: Int): Option[Point] =
     var result = (None: Option[Point], List.empty[Point])
-    for p0 <- scn0.beacons; p1 <- scn1.beacons do
-        val scn1PredPos = p0 - p1
-        var overlap = List.empty[Point]
-        for px <- scn1.beacons do
-          val p0pred = scn1PredPos + px
-          if scn0.beacons.contains(p0pred) then
-            overlap = overlap :+ p0pred
-        if overlap.size >= threshold && result._1.size < overlap.size then
-          return Some(scn1PredPos)
+    for p0 <- sc0.beacons
+        p1 <- sc1.beacons do
+          val scn1PredPos = p0 - p1
+          var overlap = List.empty[Point]
+          for px <- sc1.beacons do
+            val p0pred = scn1PredPos + px
+            if sc0.beacons.contains(p0pred) then
+              overlap = overlap :+ p0pred
+          if overlap.size >= threshold && result._1.size < overlap.size then
+            return Some(scn1PredPos)
     None
 
 
@@ -82,7 +81,7 @@ object day19 {
     def dfs(last: Scanner, start: Int): Scanner =
       for (i <- start until scanners.length) {
         if (!visitedx.contains(i)) {
-          for (scn <- scanners(i).allCombinations) {
+          for (scn <- scanners(i).rotations) {
             val pos = detectOverlapping(last, scn, 12)
             if (pos.nonEmpty) {
               positions = positions.updated(i, pos.get)

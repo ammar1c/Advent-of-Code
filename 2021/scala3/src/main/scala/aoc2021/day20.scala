@@ -37,8 +37,6 @@ object day20 {
       for x <- 0 to m+2 do newBoardX(x) = Map.empty[Int, Int]
       for x <- 0 to m; y <- 0 to n do newBoardX(x)(y) = newBoard(x)(y)
 
-//      println("New Board x")
-//      Board(newBoardX, default).printBoard()
 
       for y <- 0 to n+2 do newBoardX(0)(y) = code(neighbors(b, -1,y))
       for y <- 0 to n+2 do newBoardX(m+2)(y) = code(neighbors(b, m+1,y))
