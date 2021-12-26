@@ -2,37 +2,32 @@ package aoc2020
 import scala.io.Source.fromFile
 object day19 {
 
-  sealed trait Rule(linex: Int) {
-    val line1 = linex
-  }
-  final case class Terminal(line: Int, c: Char) extends Rule(line)
-  final case class Sum(line: Int, left: Product, right: Product) extends Rule(line)
-  final case class Product(line: Int, rules: Reference*) extends Rule(line)
-  final case class Reference(line: Int) extends Rule(line)
-
-
-
+  sealed trait Rule
+  final case class Terminal(c: Char) extends Rule
+  final case class Sum(left: Product, right: Product) extends Rule
+  final case class Product(rules: Reference*) extends Rule
+  final case class Reference(rule: Int) extends Rule
 
 
   def parseRule(lines: Map[Int, String]): Map[Int, Rule] =
     import scala.collection.{mutable => mu}
     var rulesMemo = mu.Map.empty[Int, Rule]
 
-    def parseProduct(line: Int, rhs: List[String]): Product = {
-      Product(line, rhs.map(x => Reference(x.toInt)): _*)
+    def parseProduct(rhs: List[String]): Product = {
+      Product(rhs.map(x => Reference(x.toInt)): _*)
     }
 
     def parseRhs(line: Int, rhs: List[String]): Rule =
-      if rhs(0).contains("\"") then Terminal(line, rhs(0).stripMargin('"').head)
+      if rhs(0).contains("\"") then Terminal(rhs(0).stripMargin('"').head)
       else if rhs.contains("|") then
         val idx = rhs.indexWhere(_.contains("|"))
-        Sum(line, parseProduct(line, rhs.slice(0, idx)), parseProduct(line, rhs.slice(idx + 1, rhs.length)))
+        Sum(parseProduct(rhs.slice(0, idx)), parseProduct(rhs.slice(idx + 1, rhs.length)))
       else
-        parseProduct(line, rhs)
+        parseProduct(rhs)
 
     def parse(i: Int): Rule =
         if rulesMemo.contains(i) then rulesMemo(i)
-        rulesMemo(i) = Reference(i)
+        rulesMemo(i) = Reference(i) // for recursive rules
         val rhs = lines(i).split("\\s+").tail.toList
         rulesMemo += (i -> parseRhs(i, rhs))
         rulesMemo(i)
@@ -41,16 +36,17 @@ object day19 {
     return rulesMemo.toMap
 
 
-  def matches(message: String, top: Rule, rules: Map[Int, Rule]): List[Int] = if message.isEmpty then Nil else top match
-    case Terminal(_, c) => if message.head == c then List(1) else Nil
-    case Sum(_, left, right) => matches(message, left, rules) ::: matches(message, right, rules)
-    case Product(_, prodRules @ _*) => prodRules.foldLeft(List(0))((acc, rule) =>
-      acc.flatMap(pos => matches(message.drop(pos), rule, rules).map(pos + _))
-    )
-    case Reference(i) => matches(message, rules(i), rules)
+  def matches(message: String, top: Rule, rules: Map[Int, Rule]): List[Int] =
+    if message.isEmpty then Nil
+    else top match
+      case Terminal(c) => if message.head == c then List(1) else Nil
+      case Sum(left, right) => matches(message, left, rules) ::: matches(message, right, rules)
+      case Product(prodRules @ _*) => prodRules.foldLeft(List(0))((acc, rule) =>
+        acc.flatMap(pos => matches(message.drop(pos), rule, rules).map(pos + _))
+      )
+      case Reference(i) => matches(message, rules(i), rules)
 
-  def isValid(message: String, rule: Rule, rules: Map[Int, Rule]): Boolean =
-      matches(message, rule, rules).exists(_ == message.length)
+  def isValid(message: String, rule: Rule, rules: Map[Int, Rule]): Boolean = matches(message, rule, rules).exists(_ == message.length)
 
 
 
@@ -65,9 +61,8 @@ object day19 {
     }.toMap
 
     val generators1 = parseRule(rules)
-    println(generators1)
-    println("part 1")
 
+    println("part 1")
     println(messages.count(isValid(_, generators1(0), generators1)))
 
     val rules2 = rules ++ Map(
@@ -76,10 +71,7 @@ object day19 {
     )
 
     val generators2 = parseRule(rules2)
-    println(generators2)
     println("part 2")
     println(messages.count(isValid(_, generators2(0), generators2)))
-
-
 
 }
