@@ -31,13 +31,13 @@ object day2:
       else Win
 
 
-
   object Shape:
+
     import Outcome._
 
     val winnerLoser = List(
-      Paper    -> Rock,
-      Rock     -> Scissors,
+      Paper -> Rock,
+      Rock -> Scissors,
       Scissors -> Paper
     )
 
@@ -60,11 +60,10 @@ object day2:
     val file = getClass.getResource("/day2.txt").getFile
     val lines = io.Source.fromFile(file).getLines().toList
     import Shape._
-
     val first =
       lines.flatMap { line =>
-        val Array(first, second) = line.split(" ")
-        parse(first.head).flatMap(s1 => parse(second.head).map(s2 => (s1, s2))).toOption
+        val Array(first, second) = line.split(" ").map(_.head)
+        parse(first).flatMap(s1 => parse(second).map(s2 => (s1, s2))).toOption
       }
         .map { case (s1, s2) =>
           val winner = Outcome.chooseWinner(s1, s2)
@@ -73,8 +72,8 @@ object day2:
     println(first)
     val second =
       lines.flatMap { line =>
-        val Array(first, second) = line.split(" ")
-        parse(first.head).flatMap(s1 => Outcome.parse(second.head).map(s2 => (s1, s2))).toOption
+        val Array(first, second) = line.split(" ").map(_.head)
+        parse(first).flatMap(s1 => Outcome.parse(second).map(s2 => (s1, s2))).toOption
       }.map { case (shape, outcome) =>
         pickShape(shape, outcome).score + outcome.score
       }.sum
