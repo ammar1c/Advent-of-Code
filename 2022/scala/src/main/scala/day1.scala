@@ -5,7 +5,7 @@ object day1 {
   def main(args: Array[String]): Unit = {
     val file = getClass.getResource("/day1.txt").getFile
     val lines = io.Source.fromFile(file).getLines()
-    var sums = mutable.ArrayDeque.empty[Long]
+    val sums = mutable.ArrayDeque.empty[Long]
     for(line <- lines) {
       if(sums.isEmpty) sums += 0
 
