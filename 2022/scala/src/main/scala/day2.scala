@@ -1,28 +1,26 @@
 import day1.getClass
 
-object day2 {
-  enum Shape(val score: Int) {
+object day2:
+
+  enum Shape(val score: Int):
     case Rock extends Shape(1)
     case Paper extends Shape(2)
     case Scissors extends Shape(3)
-  }
 
-  enum Outcome(val score: Int) {
+  enum Outcome(val score: Int):
     case Lose extends Outcome(0)
     case Win extends Outcome(6)
     case Draw extends Outcome(3)
-  }
 
-  object Outcome {
+  object Outcome:
 
     import Shape._
 
-    def parse(c: Char): Either[Throwable, Outcome] = c match {
+    def parse(c: Char): Either[Throwable, Outcome] = c match
       case 'X' => Right(Lose)
       case 'Y' => Right(Draw)
       case 'Z' => Right(Win)
       case _ => Left(IllegalArgumentException("Unrecognized character"))
-    }
 
 
     def chooseWinner(first: Shape, second: Shape): Outcome =
@@ -33,28 +31,22 @@ object day2 {
       else Win
 
 
-  }
 
-
-  object Shape {
-
+  object Shape:
     import Outcome._
 
-    def pickShape(shape: Shape, outcome: Outcome): Shape = outcome match
-      case Lose => loseTo(shape)
-      case Draw => shape
-      case Win => winAgainst(shape)
+    val winnerLoser = List(
+      Paper    -> Rock,
+      Rock     -> Scissors,
+      Scissors -> Paper
+    )
 
-    def winAgainst(shape: Shape): Shape = shape match
-      case Rock => Paper
-      case Paper => Scissors
-      case Scissors => Rock
-
-
-    def loseTo(shape: Shape): Shape = shape match
-      case Paper => Rock
-      case Scissors => Paper
-      case Rock => Scissors
+    def pickShape(shape: Shape, outcome: Outcome): Shape =
+      import Outcome._
+      outcome match
+        case Lose => winnerLoser.find(_._1 == shape).map(_._2).get
+        case Draw => shape
+        case Win => winnerLoser.find(_._2 == shape).map(_._1).get
 
 
     def parse(c: Char): Either[Throwable, Shape] = c match
@@ -64,9 +56,7 @@ object day2 {
       case _ => Left(IllegalArgumentException("Unrecognized shape"))
 
 
-  }
-
-  def main(args: Array[String]): Unit = {
+  def main(args: Array[String]): Unit =
     val file = getClass.getResource("/day2.txt").getFile
     val lines = io.Source.fromFile(file).getLines().toList
     import Shape._
@@ -90,5 +80,3 @@ object day2 {
       }.sum
     println(second)
 
-  }
-}
